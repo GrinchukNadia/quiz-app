@@ -44,7 +44,6 @@ function startQuiz() {
   antwortInput = document.querySelector("input");
   responseMessage = document.querySelector(".resultat");
   frageBox = document.querySelector(".frage");
-  scoreBox = document.querySelector(".score");
   repeatButton = null;
   currentIndex = 0;
   score = 0;
@@ -124,6 +123,8 @@ function nextQuestion(index) {
 function showResultat(title) {
   quizBox.innerHTML = resultat;
   document.querySelector("h1").innerHTML = title;
+
+  const scoreBox = document.querySelector('.score');
   scoreBox.innerHTML = `Score ${score}`;
 }
 

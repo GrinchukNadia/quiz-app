@@ -1,18 +1,22 @@
-const fragen = [
-  "Wie heißt die Hauptstadt in Österreich?",
-  "Wie viele Bundesländer gibt es in Österreich?",
-  "In welchem Bundesland liegt die Stadt Innsbruck?",
+const quizData = [
+  { question: "Wie heißt die Hauptstadt in Österreich?", answer: "Wien" },
+  { question: "Wie viele Bundesländer gibt es in Österreich?", answer: "9" },
+  {
+    question: "In welchem Bundesland liegt die Stadt Innsbruck?",
+    answer: "Tirol",
+  },
 ];
-const antworten = ["Wien", "9", "Tirol"];
 
 let antwortButton;
 let repeatButton;
 let antwortInput;
 let responseMessage;
+let frageBox;
+let scoreBox;
 
+let quizBox = document.querySelector(".quiz-box");
 let currentIndex = 0;
 let score = 0;
-let quizBox = document.querySelector(".quiz-box");
 let delay = 1200;
 let antwortSchonGegeben = false;
 let resultat = `
@@ -32,14 +36,16 @@ let startQuizHTML = `
 function startQuiz() {
   quizBox.innerHTML = startQuizHTML;
   antwortButton = document.querySelector(".submitButton");
-  repeatButton = null;
   antwortInput = document.querySelector("input");
   responseMessage = document.querySelector(".resultat");
+  frageBox = document.querySelector(".frage");
+  scoreBox = document.querySelector(".score");
+  repeatButton = null;
   currentIndex = 0;
   score = 0;
   antwortSchonGegeben = false;
 
-  document.querySelector(".frage").innerHTML = fragen[currentIndex];
+  document.querySelector(".frage").innerHTML = quizData[currentIndex].question;
   antwortInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       checkAntwort(currentIndex);
@@ -51,17 +57,17 @@ function startQuiz() {
 function checkAntwort(index) {
   //Validation of emty input, multiple choises
   if (antwortInput.value === "") {
-    responseMessage.innerHTML = "Screiben Sie bitte ein Antwort.";
+    responseMessage.innerHTML = "Screiben Sie bitte eine Antwort.";
     responseMessage.classList.add("wrong");
     return;
   }
   if (antwortSchonGegeben) return;
   antwortSchonGegeben = true;
 
-  document.querySelector(".frage").innerHTML = fragen[index];
-  let antwort = document.querySelector("input").value;
+  frageBox.innerHTML = quizData[index].question;
+  let antwort = antwortInput.value;
 
-  if (antwort === antworten[index]) {
+  if (antwort === quizData[index].answer) {
     responseMessage.innerHTML = "Juhuuu!";
     responseMessage.classList.remove("wrong");
     responseMessage.classList.add("correct");
@@ -72,27 +78,21 @@ function checkAntwort(index) {
     responseMessage.classList.add("wrong");
   }
 
-  if (currentIndex < fragen.length - 1) {
+  if (currentIndex < quizData.length - 1) {
     currentIndex++;
     nextQuestion(currentIndex);
   } else {
     setTimeout(() => {
       if (score === 0) {
-        quizBox.innerHTML = resultat;
-        document.querySelector("h1").innerHTML =
-          "Du hast leider alle Fragen falsch beantwortet. Übe weiter!";
-        document.querySelector(".score").innerHTML = `Score: ${score}`;
-      } else if (score === fragen.length) {
-        quizBox.innerHTML = resultat;
-        document.querySelector("h1").innerHTML =
-          "Super! Gut gemacht! Alle Antworten sind richtig!";
-        document.querySelector(".score").innerHTML = `Score: ${score}`;
+        showResultat(
+          "Du hast leider alle Fragen falsch beantwortet. Übe weiter!"
+        );
+      } else if (score === quizData.length) {
+        showResultat("Super! Gut gemacht! Alle Antworten sind richtig!");
       } else {
-        quizBox.innerHTML = resultat;
-        document.querySelector(
-          "h1"
-        ).innerHTML = `Du hast ${score} von ${fragen.length} Fragen richtig beantworten.`;
-        document.querySelector(".score").innerHTML = `Score: ${score}`;
+        showResultat(
+          `Du hast ${score} von ${quizData.length} Fragen richtig beantwortet.`
+        );
       }
       document.querySelector(".repeatButton").addEventListener("click", () => {
         startQuiz();
@@ -105,12 +105,18 @@ function checkAntwort(index) {
 function nextQuestion(index) {
   setTimeout(() => {
     antwortInput.value = "";
-    document.querySelector(".frage").innerHTML = fragen[index];
-    document.querySelector(".resultat").innerHTML = "";
+    frageBox.innerHTML = quizData[index].question;
+    responseMessage.innerHTML = "";
     responseMessage.classList.remove("correct");
     responseMessage.classList.remove("wrong");
     antwortSchonGegeben = false;
   }, delay);
+}
+
+function showResultat(title) {
+  quizBox.innerHTML = resultat;
+  document.querySelector("h1").innerHTML = title;
+  scoreBox.innerHTML = `Score ${score}`;
 }
 
 startQuiz();

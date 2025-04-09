@@ -1,3 +1,4 @@
+//Quiz content: each object contains a question and its correct answer
 const quizData = [
   { question: "Wie heißt die Hauptstadt in Österreich?", answer: "Wien" },
   { question: "Wie viele Bundesländer gibt es in Österreich?", answer: "9" },
@@ -24,17 +25,21 @@ let resultat = `
   <div class="score"></div>
   <button class="repeatButton">Noch einmal</button>
 `;
+
 let startQuizHTML = `
-    <h1>Willkommen zu meinem Quiz</h1>
-    <div class="frage"></div>
-    <input type="text" placeholder="Type your answer here..." />
-    <div class="resultat"></div>
-    <div class="score">Score: 0</div>
-    <button class="submitButton">Antworten</button>
+<h1>Willkommen zu meinem Quiz</h1>
+<div class="frage"></div>
+<input type="text" placeholder="Type your answer here..." />
+<div class="resultat"></div>
+<div class="score">Score: 0</div>
+<button class="submitButton">Antworten</button>
 `;
 
+//Initializes the quiz: renders initial HTML, resets variables, and sets up event listeners
 function startQuiz() {
   quizBox.innerHTML = startQuizHTML;
+
+  //Re-select dynamic elements after injecting new HTML
   antwortButton = document.querySelector(".submitButton");
   antwortInput = document.querySelector("input");
   responseMessage = document.querySelector(".resultat");
@@ -45,37 +50,38 @@ function startQuiz() {
   score = 0;
   antwortSchonGegeben = false;
 
-  document.querySelector(".frage").innerHTML = quizData[currentIndex].question;
+  frageBox.innerHTML = quizData[currentIndex].question;
+
+  //Handle Enter key press inside the input field
   antwortInput.addEventListener("keydown", (e) => {
     if (e.key === "Enter") {
       checkAntwort(currentIndex);
     }
   });
+
+  //Handle click on the "Antworten" button
   antwortButton.addEventListener("click", () => checkAntwort(currentIndex));
 }
 
+//Checks the user's answer, updates feedback and score, and moves to next question or final result
 function checkAntwort(index) {
-  //Validation of emty input, multiple choises
-  if (antwortInput.value === "") {
+  //Prevent submission if the input is empty
+  if (isInputEmpty()) {
     responseMessage.innerHTML = "Screiben Sie bitte eine Antwort.";
     responseMessage.classList.add("wrong");
     return;
   }
+  //Prevent multiple submissions for the same question
   if (antwortSchonGegeben) return;
   antwortSchonGegeben = true;
 
   frageBox.innerHTML = quizData[index].question;
   let antwort = antwortInput.value;
 
-  if (antwort === quizData[index].answer) {
-    responseMessage.innerHTML = "Juhuuu!";
-    responseMessage.classList.remove("wrong");
-    responseMessage.classList.add("correct");
+  const isCorrect = antwort === quizData[index].answer;
+  showFeedback(isCorrect);
+  if (isCorrect) {
     score++;
-  } else {
-    responseMessage.innerHTML = "Die antwort ist leider falsch!";
-    responseMessage.classList.remove("correct");
-    responseMessage.classList.add("wrong");
   }
 
   if (currentIndex < quizData.length - 1) {
@@ -102,6 +108,7 @@ function checkAntwort(index) {
   document.querySelector(".score").innerHTML = `Score: ${score}`;
 }
 
+//Moves to the next question after a short delay
 function nextQuestion(index) {
   setTimeout(() => {
     antwortInput.value = "";
@@ -113,14 +120,35 @@ function nextQuestion(index) {
   }, delay);
 }
 
+//Displays the final result screen with a custom title and current score
 function showResultat(title) {
   quizBox.innerHTML = resultat;
   document.querySelector("h1").innerHTML = title;
   scoreBox.innerHTML = `Score ${score}`;
 }
 
+//Returns true if input is emptyor contains only spaces
+function isInputEmpty() {
+  return antwortInput.value.trim() === "";
+}
+
+// Shows visual feedback based on whether the answer is correct or not
+function showFeedback(isCorrect) {
+  if (isCorrect) {
+    responseMessage.innerHTML = "Juhuuu!";
+    responseMessage.classList.remove("wrong");
+    responseMessage.classList.add("correct");
+  } else {
+    responseMessage.innerHTML = "Die antwort ist leider falsch!";
+    responseMessage.classList.remove("correct");
+    responseMessage.classList.add("wrong");
+  }
+}
+
 startQuiz();
 
+// Old code from the original ADA & Florence course assignment:
+// This was the very first version of the quiz using prompt() and console.log()
 // let answer1 = prompt(frage1);
 // if(answer1 == "Wien") {
 //   console.log("Juhuuu!")
